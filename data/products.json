@@ -1,0 +1,23 @@
+[
+    {
+        "id": "222",
+        "title": "A Book",
+        "imageUrl": "https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg",
+        "description": "This is an awesome book!",
+        "price": "19"
+    },
+    {
+        "title": " test ",
+        "imageUrl": " https://homepages.cae.wisc.edu/~ece533/images/airplane.png ",
+        "description": "  test  ",
+        "price": "100",
+        "id": "0.46967143961059543"
+    },
+    {
+        "id": "0.2960117505864519",
+        "title": "  test  22",
+        "imageUrl": "  https://homepages.cae.wisc.edu/~ece533/images/airplane.png  ",
+        "description": "    test    amazing",
+        "price": "100.11"
+    }
+]
