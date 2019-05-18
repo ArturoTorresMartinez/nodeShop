@@ -18,7 +18,12 @@ exports.getSignup = (req, res, next) => {
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
-    errorMessage: req.flash("error")
+    errorMessage: req.flash("error"),
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: ""
+    }
   });
 };
 
@@ -54,6 +59,7 @@ exports.postLogin = (req, res, next) => {
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
+
     console.log("err :", err);
     res.redirect("/");
   });
@@ -62,43 +68,35 @@ exports.postLogout = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const pass = req.body.password;
-  const confirmPass = req.body.confirmPassword;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
-      errorMessage: errors.array()[0].msg
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email: email, password: pass, confirmPassword: req.body.confirmPassword }
     });
   }
-  User.findOne({ email: email })
-    .then(userData => {
-      if (userData) {
-        req.flash("error", "Email already exists");
-        return res.redirect("/signup");
-      }
-      return bcrypt
-        .hash(pass, 12)
-        .then(hashedPass => {
-          const user = new User({
-            email: email,
-            password: hashedPass,
-            cart: { items: [] }
-          });
-          return user.save();
-        })
-        .then(result => {
-          res.redirect("/login");
-          const msg = {
-            to: email,
-            from: "shop@arturotorres.com",
-            subject: "Sign Up Complete",
-            text: "email sent with Node.js",
-            html: "<strong>email sent with Node.js</strong>"
-          };
-          sgMail.send(msg);
-        })
-        .catch(err => console.log(err));
+  bcrypt
+    .hash(pass, 12)
+    .then(hashedPass => {
+      const user = new User({
+        email: email,
+        password: hashedPass,
+        cart: { items: [] }
+      });
+      return user.save();
+    })
+    .then(result => {
+      res.redirect("/login");
+      const msg = {
+        to: email,
+        from: "shop@arturotorres.com",
+        subject: "Sign Up Complete",
+        text: "email sent with Node.js",
+        html: "<strong>email sent with Node.js</strong>"
+      };
+      sgMail.send(msg);
     })
     .catch(err => console.log(err));
 };
