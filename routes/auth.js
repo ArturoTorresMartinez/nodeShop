@@ -27,8 +27,7 @@ router.post("/signup", [
                 }
             })
     }),
-    body('password', 'Password must be at least 4 characters long and alphanumeric').isLength({ min: 4 }).isAlphanumeric(),
-    body('confirmPassword', 'Passwords do not match').matches('password')
+    body('password', 'Password must be at least 4 characters long and alphanumeric').isLength({ min: 4 }).isAlphanumeric()
 ],
     authController.postSignup);
 
