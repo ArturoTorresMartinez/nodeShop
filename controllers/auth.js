@@ -2,9 +2,9 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const User = require("../models/user");
 const { validationResult } = require('express-validator/check');
-
 // const nodemailer = require("nodemailer");
 const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
