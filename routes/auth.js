@@ -27,7 +27,13 @@ router.post("/signup", [
                 }
             })
     }),
-    body('password', 'Password must be at least 4 characters long and alphanumeric').isLength({ min: 4 }).isAlphanumeric()
+    body('password', 'Password must be at least 4 characters long and alphanumeric').isLength({ min: 4 }).isAlphanumeric(),
+    body('confirmPassword').custom((value, { req }) => {
+        if (req.body.password !== value) {
+            throw new Error('Password confirmation does not match password');
+        }
+        return true;
+    })
 ],
     authController.postSignup);
 
