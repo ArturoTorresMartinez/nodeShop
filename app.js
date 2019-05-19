@@ -57,7 +57,7 @@ app.use((req, res, next) => {
       req.user = user;
       next();
     })
-    .catch(err => console.log(err));
+    .catch(err => { throw new Error(err); });
 });
 
 app.use(csrfProtection);
@@ -71,6 +71,9 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 app.use(errorController.get404);
+app.use((error, req, res, next) => {
+  res.redirect('/');
+});
 
 mongoose
   .connect(MONGODB_URI, { useFindAndModify: false, useNewUrlParser: true })
