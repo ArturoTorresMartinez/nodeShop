@@ -16,13 +16,11 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log(errors.array());
-    return res.render("admin/edit-product", {
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product",
       path: "/admin/add-product",
       editing: false,
@@ -31,7 +29,24 @@ exports.postAddProduct = (req, res, next) => {
         title: title,
         price: price,
         description: description,
-        imageUrl: imageUrl,
+        userId: req.user
+      },
+      errorMessage: 'Attached file is not supported as an image',
+      validationErrors: []
+    });
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description,
         userId: req.user
       },
       errorMessage: errors.array()[0].msg,
@@ -42,7 +57,7 @@ exports.postAddProduct = (req, res, next) => {
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl,
+    imageUrl: image.path,
     userId: req.user
   });
   product
@@ -54,6 +69,7 @@ exports.postAddProduct = (req, res, next) => {
     .catch(err => {
       const error = new Error('Product creation failed');
       error.httpStatusCode = 500;
+      console.log('error handled: ' + err)
       return next(error);
     });
 };
@@ -86,7 +102,7 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDescription = req.body.description;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -99,7 +115,6 @@ exports.postEditProduct = (req, res, next) => {
         title: updatedTitle,
         price: updatedPrice,
         description: updatedDescription,
-        imageUrl: updatedImageUrl,
         userId: req.user,
         _id: prodId
       },
@@ -112,7 +127,9 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDescription;
-      product.imageUrl = updatedImageUrl;
+      if (image) {
+        product.imageUrl = image.path;
+      }
       return product.save();
     })
     .then(result => {
