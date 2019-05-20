@@ -1,7 +1,6 @@
-const { validationResult } = require('express-validator/check');
-
+const { validationResult } = require("express-validator/check");
+const fileHelper = require("../util/file");
 const Product = require("../models/product");
-
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -31,7 +30,7 @@ exports.postAddProduct = (req, res, next) => {
         description: description,
         userId: req.user
       },
-      errorMessage: 'Attached file is not supported as an image',
+      errorMessage: "Attached file is not supported as an image",
       validationErrors: []
     });
   }
@@ -67,9 +66,9 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch(err => {
-      const error = new Error('Product creation failed');
+      const error = new Error("Product creation failed");
       error.httpStatusCode = 500;
-      console.log('error handled: ' + err)
+      console.log("error handled: " + err);
       return next(error);
     });
 };
@@ -128,6 +127,7 @@ exports.postEditProduct = (req, res, next) => {
       product.price = updatedPrice;
       product.description = updatedDescription;
       if (image) {
+        fileHelper.deleteFile(product.imageUrl);
         product.imageUrl = image.path;
       }
       return product.save();
@@ -155,7 +155,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByIdAndRemove(prodId)
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error("Product not found"));
+      }
+      fileHelper.deleteFile(product.imageUrl);
+      return Product.findByIdAndRemove({ _id: prodId, userId: req.user._id });
+    })
     .then(() => {
       res.redirect("/admin/products");
     })
