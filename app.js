@@ -57,6 +57,7 @@ const fileFilter = (req, file, cb) => {
 app.use(flash());
 app.set("view engine", "ejs");
 app.set("views", "views");
+console.log("howdy")
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
